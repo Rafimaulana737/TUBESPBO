@@ -2,11 +2,12 @@ package Reservasi._Co_Working.demo.controller;
 
 import Reservasi._Co_Working.demo.model.User;
 import Reservasi._Co_Working.demo.service.UserService;
+
+import java.util.List;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/user")
@@ -18,53 +19,68 @@ public class UserController {
         this.userService = userService;
     }
 
-    // ==========================================
-    // HALAMAN HTML THYMELEAF
-    // ==========================================
-
-    // URL: http://localhost:8080/user/page
     @GetMapping("/page")
-    public String userPage(Model model) {
-        // Kirim data user ke html
+    public String usersPage(Model model) {
         model.addAttribute("users", userService.getAllUsers());
-        
-        // Menuju file: src/main/resources/templates/user.html (atau users.html)
-        return "user";
+        model.addAttribute("userForm", new User());
+        return "users";
     }
 
-    // ==========================================
-    // API JSON ENDPOINTS
-    // ==========================================
+    @GetMapping("/page/edit/{id}")
+    public String editUserPage(@PathVariable Long id, Model model) {
+        User user = userService.getUserById(id)
+                .orElseThrow(() -> new RuntimeException("User tidak ditemukan"));
+        model.addAttribute("users", userService.getAllUsers());
+        model.addAttribute("userForm", user);
+        model.addAttribute("editMode", true);
+        return "users";
+    }
 
-    // GET ALL USERS
-    // URL: http://localhost:8080/user/api
+    @PostMapping("/page")
+    public String createUser(@ModelAttribute User userForm) {
+        userService.saveUser(userForm);
+        return "redirect:/user/page";
+    }
+
+    @PostMapping("/page/update/{id}")
+    public String updateUser(@PathVariable Long id, @ModelAttribute User userForm) {
+        userService.updateUser(id, userForm);
+        return "redirect:/user/page";
+    }
+
+    @PostMapping("/page/delete/{id}")
+    public String deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return "redirect:/user/page";
+    }
+
     @GetMapping("/api")
     @ResponseBody
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
 
-    // GET USER BY ID
-    // URL: http://localhost:8080/user/api/1
     @GetMapping("/api/{id}")
     @ResponseBody
     public User getUserById(@PathVariable Long id) {
         return userService.getUserById(id).orElse(null);
     }
 
-    // CREATE USER
-    // URL: http://localhost:8080/user/api
     @PostMapping("/api")
     @ResponseBody
-    public User createUser(@RequestBody User user) {
+    public User createUserApi(@RequestBody User user) {
         return userService.saveUser(user);
     }
 
-    // DELETE USER
-    // URL: http://localhost:8080/user/api/1
+    @PutMapping("/api/{id}")
+    @ResponseBody
+    public User updateUserApi(@PathVariable Long id, @RequestBody User user) {
+        return userService.updateUser(id, user);
+    }
+
     @DeleteMapping("/api/{id}")
     @ResponseBody
-    public void deleteUser(@PathVariable Long id) {
+    public void deleteUserApi(@PathVariable Long id) {
         userService.deleteUser(id);
     }
 }

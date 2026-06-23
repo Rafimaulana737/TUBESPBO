@@ -28,6 +28,17 @@ public class ReservationService {
         return reservationRepository.save(reservation);
     }
 
+    public Reservation updateReservation(Long id, Reservation reservationDetails) {
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Reservasi tidak ditemukan"));
+
+        reservation.setTanggal(reservationDetails.getTanggal());
+        reservation.setUser(reservationDetails.getUser());
+        reservation.setRoom(reservationDetails.getRoom());
+
+        return reservationRepository.save(reservation);
+    }
+
     public void deleteReservation(Long id) {
         reservationRepository.deleteById(id);
     }
