@@ -14,7 +14,7 @@ import Reservasi._Co_Working.demo.model.Room;
 import Reservasi._Co_Working.demo.service.RoomService;
 
 @RestController
-@RequestMapping("/rooms")
+@RequestMapping("/room")
 public class RoomController {
     private final RoomService roomService;
 
