@@ -2,6 +2,8 @@ package Reservasi._Co_Working.demo.controller;
 
 import java.util.List;
 
+import org.springframework.ui.Model;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,7 +16,7 @@ import Reservasi._Co_Working.demo.model.Room;
 import Reservasi._Co_Working.demo.service.RoomService;
 
 @RestController
-@RequestMapping("/rooms")
+@RequestMapping("/room")
 public class RoomController {
     private final RoomService roomService;
 
@@ -41,4 +43,10 @@ public class RoomController {
     public void deleteRoom(@PathVariable Long id) {
         roomService.deleteRoom(id);
     }
+
+    @GetMapping("/page")
+    public String roomPage(Model model) {
+    model.addAttribute("rooms", roomService.getAllRooms());
+    return "room";
+}
 }
