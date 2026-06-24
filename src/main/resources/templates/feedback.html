@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Feedback')}"></head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="container">
+        <a href="/" class="back-link">← Kembali ke Dashboard</a>
+        <div class="page-header"><h1>Feedback Kepuasan</h1><p>Rating dan evaluasi pasca-penggunaan</p></div>
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+
+        <div class="card" th:if="${adminView == null}">
+            <h2 class="card-title">Kirim Feedback</h2>
+            <form method="post" action="/feedback/page">
+                <div class="form-grid">
+                    <div class="form-group"><label>Reservasi (SELESAI)</label>
+                        <select name="reservationId" required>
+                            <option value="">Pilih reservasi</option>
+                            <option th:each="res : ${completedReservations}" th:value="${res.id}"
+                                    th:text="${res.bookingKode} + ' · ' + ${res.tanggal}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Rating</label>
+                        <select name="rating" required>
+                            <option value="5">5 — Sangat Puas</option>
+                            <option value="4">4 — Puas</option>
+                            <option value="3">3 — Cukup</option>
+                            <option value="2">2 — Kurang</option>
+                            <option value="1">1 — Tidak Puas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top:16px;"><label>Komentar</label>
+                    <textarea name="komentar" required rows="3" placeholder="Ceritakan pengalaman Anda..."></textarea>
+                </div>
+                <div class="form-actions"><button type="submit" class="btn btn-primary">Kirim Feedback</button></div>
+            </form>
+        </div>
+
+        <p class="section-title" th:text="${adminView != null} ? 'Semua Feedback' : 'Riwayat Feedback'"></p>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Tanggal</th><th th:if="${adminView != null}">Mahasiswa</th><th>Booking</th><th>Rating</th><th>Komentar</th></tr></thead>
+                <tbody>
+                    <tr th:each="fb : ${feedbacks}">
+                        <td th:text="${fb.tanggal}"></td>
+                        <td th:if="${adminView != null}" th:text="${fb.user.nama}"></td>
+                        <td th:text="${fb.reservation != null} ? ${fb.reservation.bookingKode} : '-'"></td>
+                        <td th:text="${fb.rating} + '/5'"></td>
+                        <td th:text="${fb.komentar}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(feedbacks)}" class="empty-row"><td colspan="5">Belum ada feedback.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Kelola Meja')}"></head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="container">
+        <a href="/" class="back-link">← Kembali ke Dashboard</a>
+        <div class="page-header"><h1>Kelola Meja</h1><p>Data meja kerja per ruangan</p></div>
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+
+        <div class="card">
+            <h2 class="card-title" th:text="${editMode} ? 'Edit Meja' : 'Tambah Meja'"></h2>
+            <form th:action="${editMode} ? @{/meja/page/update/{id}(id=${mejaForm.id})} : @{/meja/page}"
+                  method="post" th:object="${mejaForm}">
+                <div class="form-grid">
+                    <div class="form-group"><label>Nomor Meja</label><input type="text" th:field="*{nomorMeja}" required></div>
+                    <div class="form-group"><label>Ruangan</label>
+                        <select name="room.id" required>
+                            <option value="">Pilih ruangan</option>
+                            <option th:each="room : ${rooms}" th:value="${room.id}" th:text="${room.namaRuangan}"
+                                    th:selected="${mejaForm.room != null and mejaForm.room.id == room.id}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Status</label>
+                        <select th:field="*{status}" required>
+                            <option value="tersedia">Tersedia</option>
+                            <option value="maintenance">Maintenance</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" th:text="${editMode} ? 'Simpan' : 'Tambah'"></button>
+                    <a th:if="${editMode}" href="/meja/page" class="btn btn-secondary">Batal</a>
+                </div>
+            </form>
+        </div>
+
+        <p class="section-title">Daftar Meja</p>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>ID</th><th>No. Meja</th><th>Ruangan</th><th>Status</th><th>Aksi</th></tr></thead>
+                <tbody>
+                    <tr th:each="meja : ${mejaList}">
+                        <td th:text="${meja.id}"></td>
+                        <td th:text="${meja.nomorMeja}"></td>
+                        <td th:text="${meja.room != null} ? ${meja.room.namaRuangan} : '-'"></td>
+                        <td><span class="badge badge-tersedia" th:text="${meja.status}"></span></td>
+                        <td><div class="actions">
+                            <a th:href="@{/meja/page/edit/{id}(id=${meja.id})}" class="btn btn-warning btn-sm">Edit</a>
+                            <form th:action="@{/meja/page/delete/{id}(id=${meja.id})}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Hapus meja?')">Hapus</button>
+                            </form>
+                        </div></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(mejaList)}" class="empty-row"><td colspan="5">Belum ada data meja.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

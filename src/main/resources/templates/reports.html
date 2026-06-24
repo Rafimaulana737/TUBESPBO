@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Laporan')}"></head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="container">
+        <a href="/" class="back-link">← Kembali ke Dashboard</a>
+        <div class="page-header"><h1>Laporan Kerusakan</h1><p>Pelaporan kondisi fasilitas dari pengguna</p></div>
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+
+        <div class="card" th:if="${adminView == null}">
+            <h2 class="card-title">Kirim Laporan</h2>
+            <form method="post" action="/reports/page">
+                <div class="form-group"><label>Reservasi terkait</label>
+                    <select name="reservationId" required>
+                        <option value="">Pilih reservasi</option>
+                        <option th:each="res : ${myReservations}" th:value="${res.id}"
+                                th:text="${res.bookingKode} + ' · ' + ${res.tanggal}"></option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-top:16px;"><label>Deskripsi Kerusakan</label>
+                    <textarea name="deskripsiKerusakan" required rows="4" placeholder="Jelaskan kerusakan yang ditemukan..."></textarea>
+                </div>
+                <div class="form-actions"><button type="submit" class="btn btn-primary">Kirim Laporan</button></div>
+            </form>
+        </div>
+
+        <p class="section-title" th:text="${adminView != null} ? 'Semua Laporan' : 'Riwayat Laporan'"></p>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Tanggal</th><th th:if="${adminView != null}">Mahasiswa</th><th>Booking</th><th>Deskripsi</th><th>Status</th><th th:if="${adminView != null}">Aksi</th></tr></thead>
+                <tbody>
+                    <tr th:each="rep : ${reports}">
+                        <td th:text="${rep.tanggal}"></td>
+                        <td th:if="${adminView != null}" th:text="${rep.user.nama}"></td>
+                        <td th:text="${rep.reservation != null} ? ${rep.reservation.bookingKode} : '-'"></td>
+                        <td th:text="${rep.deskripsiKerusakan}"></td>
+                        <td><span class="badge badge-status" th:text="${rep.status}"></span></td>
+                        <td th:if="${adminView != null}">
+                            <form th:action="@{/reports/page/status/{id}(id=${rep.id})}" method="post">
+                                <select name="status" onchange="this.form.submit()" class="btn-sm">
+                                    <option value="PENDING" th:selected="${rep.status == 'PENDING'}">PENDING</option>
+                                    <option value="DIPROSES" th:selected="${rep.status == 'DIPROSES'}">DIPROSES</option>
+                                    <option value="SELESAI" th:selected="${rep.status == 'SELESAI'}">SELESAI</option>
+                                </select>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(reports)}" class="empty-row"><td colspan="6">Belum ada laporan.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

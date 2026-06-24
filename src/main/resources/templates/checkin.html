@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Check-in')}"></head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="container">
+        <a href="/" class="back-link">← Kembali ke Dashboard</a>
+        <div class="page-header"><h1>Validasi Check-in / out</h1><p>Verifikasi ID booking mahasiswa</p></div>
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+
+        <div class="card">
+            <h2 class="card-title">Cari Booking</h2>
+            <form method="post" action="/checkin/verify" class="form-grid" style="align-items:end;">
+                <div class="form-group" style="flex:2;"><label>Kode Booking</label>
+                    <input type="text" name="bookingKode" required placeholder="SB-XXXXXXXX">
+                </div>
+                <div class="form-group"><button type="submit" class="btn btn-primary">Verifikasi</button></div>
+            </form>
+        </div>
+
+        <div class="detail-box" th:if="${selectedReservation != null}">
+            <h3>Detail Booking</h3>
+            <p><strong>Kode:</strong> <span th:text="${selectedReservation.bookingKode}"></span></p>
+            <p><strong>Mahasiswa:</strong> <span th:text="${selectedReservation.user.nama}"></span></p>
+            <p><strong>Tanggal:</strong> <span th:text="${selectedReservation.tanggal}"></span></p>
+            <p><strong>Meja:</strong> <span th:text="${selectedReservation.meja != null} ? ${selectedReservation.meja.nomorMeja} : '-'"></span></p>
+            <p><strong>Status:</strong> <span th:text="${selectedReservation.status}"></span></p>
+            <div class="form-actions" style="margin-top:16px;">
+                <form method="post" action="/checkin/checkin" style="display:inline;">
+                    <input type="hidden" name="bookingKode" th:value="${selectedReservation.bookingKode}">
+                    <button type="submit" class="btn btn-success">Check-in</button>
+                </form>
+                <form method="post" action="/checkin/checkout" style="display:inline;">
+                    <input type="hidden" name="bookingKode" th:value="${selectedReservation.bookingKode}">
+                    <button type="submit" class="btn btn-warning">Check-out</button>
+                </form>
+            </div>
+        </div>
+
+        <p class="section-title">Semua Reservasi</p>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Kode</th><th>Mahasiswa</th><th>Tanggal</th><th>Meja</th><th>Status</th><th>Check-in</th><th>Check-out</th></tr></thead>
+                <tbody>
+                    <tr th:each="res : ${reservations}">
+                        <td th:text="${res.bookingKode}"></td>
+                        <td th:text="${res.user != null} ? ${res.user.nama} : '-'"></td>
+                        <td th:text="${res.tanggal}"></td>
+                        <td th:text="${res.meja != null} ? ${res.meja.nomorMeja} : '-'"></td>
+                        <td><span class="badge badge-status" th:text="${res.status}"></span></td>
+                        <td th:text="${res.waktuCheckIn != null} ? ${#temporals.format(res.waktuCheckIn, 'dd/MM HH:mm')} : '-'"></td>
+                        <td th:text="${res.waktuCheckOut != null} ? ${#temporals.format(res.waktuCheckOut, 'dd/MM HH:mm')} : '-'"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

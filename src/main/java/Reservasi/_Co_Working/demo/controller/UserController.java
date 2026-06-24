@@ -2,12 +2,16 @@ package Reservasi._Co_Working.demo.controller;
 
 import Reservasi._Co_Working.demo.model.User;
 import Reservasi._Co_Working.demo.service.UserService;
+import Reservasi._Co_Working.demo.util.AuthHelper;
 
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/user")
@@ -20,14 +24,23 @@ public class UserController {
     }
 
     @GetMapping("/page")
-    public String usersPage(Model model) {
+    public String usersPage(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+        if (!AuthHelper.isAdmin(AuthHelper.getCurrentUser(session))) {
+            redirectAttributes.addFlashAttribute("error", "Hanya admin yang dapat mengelola user");
+            return "redirect:/";
+        }
         model.addAttribute("users", userService.getAllUsers());
         model.addAttribute("userForm", new User());
         return "users";
     }
 
     @GetMapping("/page/edit/{id}")
-    public String editUserPage(@PathVariable Long id, Model model) {
+    public String editUserPage(@PathVariable Long id, HttpSession session, Model model,
+            RedirectAttributes redirectAttributes) {
+        if (!AuthHelper.isAdmin(AuthHelper.getCurrentUser(session))) {
+            redirectAttributes.addFlashAttribute("error", "Hanya admin yang dapat mengelola user");
+            return "redirect:/";
+        }
         User user = userService.getUserById(id)
                 .orElseThrow(() -> new RuntimeException("User tidak ditemukan"));
         model.addAttribute("users", userService.getAllUsers());

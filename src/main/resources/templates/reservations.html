@@ -1,102 +1,70 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Daftar Reservasi - SpaceBook</title>
-    <style>
-        body  { font-family: Arial, sans-serif; max-width: 1000px; margin: 40px auto; padding: 0 20px; }
-        h1, h2 { color: #2c3e50; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th    { background: #8e44ad; color: white; padding: 10px; text-align: left; }
-        td    { padding: 8px 10px; border-bottom: 1px solid #ddd; }
-        tr:hover td { background: #fdf5ff; }
-        .back { text-decoration: none; color: #8e44ad; }
-        .form-box { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; border: 1px solid #ddd; }
-        .form-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
-        .form-row label { display: flex; flex-direction: column; font-size: 13px; color: #555; flex: 1; min-width: 180px; }
-        .form-row input, .form-row select { padding: 8px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px; }
-        .btn { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; text-decoration: none; display: inline-block; }
-        .btn-primary { background: #8e44ad; color: white; }
-        .btn-warning { background: #f39c12; color: white; }
-        .btn-danger  { background: #e74c3c; color: white; }
-        .btn-secondary { background: #95a5a6; color: white; }
-        .actions { display: flex; gap: 6px; }
-    </style>
-</head>
+<head th:replace="~{fragments/layout :: head('Reservasi')}"></head>
 <body>
-    <a class="back" href="/">← Kembali</a>
-    <h1>📅 Kelola Reservasi</h1>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="container">
+        <a href="/" class="back-link">← Kembali ke Dashboard</a>
+        <div class="page-header"><h1>Semua Reservasi</h1><p>Kelola transaksi booking (Admin)</p></div>
+        <div th:replace="~{fragments/layout :: alerts}"></div>
 
-    <div class="form-box">
-        <h2 th:text="${editMode} ? '✏️ Edit Reservasi' : '➕ Tambah Reservasi'"></h2>
-        <form th:action="${editMode} ? @{/reservations/page/update/{id}(id=${reservationForm.id})} : @{/reservations/page}"
-              method="post">
-            <div class="form-row">
-                <label>Tanggal
-                    <input type="date" name="tanggal" required
-                           th:value="${reservationForm.tanggal}">
-                </label>
-                <label>User
-                    <select name="userId" required>
-                        <option value="">-- Pilih User --</option>
-                        <option th:each="u : ${users}"
-                                th:value="${u.id}"
-                                th:text="${u.nama} + ' (' + ${u.email} + ')'"
-                                th:selected="${reservationForm.user != null and reservationForm.user.id == u.id}">
-                        </option>
-                    </select>
-                </label>
-                <label>Ruangan
-                    <select name="roomId" required>
-                        <option value="">-- Pilih Ruangan --</option>
-                        <option th:each="r : ${rooms}"
-                                th:value="${r.id}"
-                                th:text="${r.namaRuangan} + ' (' + ${r.kapasitas} + ' orang)'"
-                                th:selected="${reservationForm.room != null and reservationForm.room.id == r.id}">
-                        </option>
-                    </select>
-                </label>
-            </div>
-            <button type="submit" class="btn btn-primary"
-                    th:text="${editMode} ? 'Simpan Perubahan' : 'Tambah Reservasi'"></button>
-            <a th:if="${editMode}" href="/reservations/page" class="btn btn-secondary">Batal</a>
-        </form>
-    </div>
-
-    <h2>📋 Daftar Reservasi</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Tanggal</th>
-                <th>User</th>
-                <th>Email User</th>
-                <th>Ruangan</th>
-                <th>Kapasitas</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="res : ${reservations}">
-                <td th:text="${res.id}"></td>
-                <td th:text="${res.tanggal}"></td>
-                <td th:text="${res.user != null} ? ${res.user.nama} : '-'"></td>
-                <td th:text="${res.user != null} ? ${res.user.email} : '-'"></td>
-                <td th:text="${res.room != null} ? ${res.room.namaRuangan} : '-'"></td>
-                <td th:text="${res.room != null} ? ${res.room.kapasitas} + ' orang' : '-'"></td>
-                <td>
-                    <div class="actions">
-                        <a th:href="@{/reservations/page/edit/{id}(id=${res.id})}" class="btn btn-warning">Edit</a>
-                        <form th:action="@{/reservations/page/delete/{id}(id=${res.id})}" method="post" style="display:inline;">
-                            <button type="submit" class="btn btn-danger"
-                                    onclick="return confirm('Hapus reservasi ini?')">Hapus</button>
-                        </form>
+        <div class="card">
+            <h2 class="card-title" th:text="${editMode} ? 'Edit Reservasi' : 'Tambah Reservasi'"></h2>
+            <form th:action="${editMode} ? @{/reservations/page/update/{id}(id=${reservationForm.id})} : @{/reservations/page}" method="post">
+                <div class="form-grid">
+                    <div class="form-group"><label>Tanggal</label><input type="date" name="tanggal" required th:value="${reservationForm.tanggal}"></div>
+                    <div class="form-group"><label>User</label>
+                        <select name="userId" required>
+                            <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.nama}"
+                                    th:selected="${reservationForm.user != null and reservationForm.user.id == u.id}"></option>
+                        </select>
                     </div>
-                </td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(reservations)}">
-                <td colspan="7" style="text-align:center; color:#999;">Belum ada data reservasi.</td>
-            </tr>
-        </tbody>
-    </table>
+                    <div class="form-group"><label>Meja</label>
+                        <select name="mejaId" required>
+                            <option th:each="m : ${mejaList}" th:value="${m.id}"
+                                    th:text="${m.nomorMeja} + ' · ' + (${m.room != null} ? ${m.room.namaRuangan} : '-')"
+                                    th:selected="${reservationForm.meja != null and reservationForm.meja.id == m.id}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group" th:if="${editMode}"><label>Status</label>
+                        <select name="status">
+                            <option value="MENUNGGU" th:selected="${reservationForm.status == 'MENUNGGU'}">MENUNGGU</option>
+                            <option value="CHECK_IN" th:selected="${reservationForm.status == 'CHECK_IN'}">CHECK_IN</option>
+                            <option value="SELESAI" th:selected="${reservationForm.status == 'SELESAI'}">SELESAI</option>
+                            <option value="DIBATALKAN" th:selected="${reservationForm.status == 'DIBATALKAN'}">DIBATALKAN</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" th:text="${editMode} ? 'Simpan' : 'Tambah'"></button>
+                    <a th:if="${editMode}" href="/reservations/page" class="btn btn-secondary">Batal</a>
+                </div>
+            </form>
+        </div>
+
+        <p class="section-title">Daftar Reservasi</p>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Kode</th><th>Tanggal</th><th>User</th><th>Meja</th><th>Ruangan</th><th>Status</th><th>Aksi</th></tr></thead>
+                <tbody>
+                    <tr th:each="res : ${reservations}">
+                        <td th:text="${res.bookingKode}"></td>
+                        <td th:text="${res.tanggal}"></td>
+                        <td th:text="${res.user != null} ? ${res.user.nama} : '-'"></td>
+                        <td th:text="${res.meja != null} ? ${res.meja.nomorMeja} : '-'"></td>
+                        <td th:text="${res.room != null} ? ${res.room.namaRuangan} : '-'"></td>
+                        <td><span class="badge badge-status" th:text="${res.status}"></span></td>
+                        <td><div class="actions">
+                            <a th:href="@{/reservations/page/edit/{id}(id=${res.id})}" class="btn btn-warning btn-sm">Edit</a>
+                            <form th:action="@{/reservations/page/delete/{id}(id=${res.id})}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Hapus?')">Hapus</button>
+                            </form>
+                        </div></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(reservations)}" class="empty-row"><td colspan="7">Belum ada reservasi.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </body>
 </html>

@@ -5,9 +5,13 @@ import java.util.List;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import Reservasi._Co_Working.demo.model.Room;
 import Reservasi._Co_Working.demo.service.RoomService;
+import Reservasi._Co_Working.demo.util.AuthHelper;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/rooms")
@@ -20,14 +24,23 @@ public class RoomController {
     }
 
     @GetMapping("/page")
-    public String roomsPage(Model model) {
+    public String roomsPage(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+        if (!AuthHelper.isAdmin(AuthHelper.getCurrentUser(session))) {
+            redirectAttributes.addFlashAttribute("error", "Hanya admin yang dapat mengelola ruangan");
+            return "redirect:/";
+        }
         model.addAttribute("rooms", roomService.getAllRooms());
         model.addAttribute("roomForm", new Room());
         return "rooms";
     }
 
     @GetMapping("/page/edit/{id}")
-    public String editRoomPage(@PathVariable Long id, Model model) {
+    public String editRoomPage(@PathVariable Long id, HttpSession session, Model model,
+            RedirectAttributes redirectAttributes) {
+        if (!AuthHelper.isAdmin(AuthHelper.getCurrentUser(session))) {
+            redirectAttributes.addFlashAttribute("error", "Hanya admin yang dapat mengelola ruangan");
+            return "redirect:/";
+        }
         Room room = roomService.getRoomById(id)
                 .orElseThrow(() -> new RuntimeException("Ruangan tidak ditemukan"));
         model.addAttribute("rooms", roomService.getAllRooms());

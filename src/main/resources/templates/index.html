@@ -1,24 +1,51 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>SpaceBook</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; }
-        h1   { color: #2c3e50; }
-        ul   { list-style: none; padding: 0; }
-        li   { margin: 10px 0; }
-        a    { text-decoration: none; background: #3498db; color: white;
-               padding: 8px 16px; border-radius: 4px; display: inline-block; }
-        a:hover { background: #2980b9; }
-    </style>
-</head>
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
 <body>
-    <h1>Selamat Datang di SpaceBook 🏢</h1>
-    <p>Sistem Reservasi Co-Working Space</p>
-    <ul>
-        <li><a href="/user/page">👤 Kelola User</a></li>
-        <li><a href="/rooms/page">🚪 Kelola Ruangan</a></li>
-        <li><a href="/reservations/page">📅 Kelola Reservasi</a></li>
-    </ul>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Dashboard</h1>
+            <p>Sistem Reservasi Co-Working Space Kampus</p>
+        </div>
+
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+
+        <div class="user-banner" th:if="${currentUser != null}">
+            <div class="info">
+                Halo, <strong th:text="${currentUser.nama}">User</strong>
+            </div>
+            <span class="badge badge-status" th:text="${currentUser.role}">role</span>
+        </div>
+
+        <div th:if="${currentUser != null and #strings.equalsIgnoreCase(currentUser.role, 'admin')}">
+            <p class="section-title">Menu Admin</p>
+            <ul class="menu-grid">
+                <li><a href="/user/page"><span class="icon">👤</span> Kelola User</a></li>
+                <li><a href="/rooms/page"><span class="icon">🚪</span> Kelola Ruangan</a></li>
+                <li><a href="/meja/page"><span class="icon">🪑</span> Kelola Meja</a></li>
+                <li><a href="/reservations/page"><span class="icon">📅</span> Semua Reservasi</a></li>
+                <li><a href="/feedback/page"><span class="icon">⭐</span> Lihat Feedback</a></li>
+                <li><a href="/reports/page"><span class="icon">📋</span> Laporan Kerusakan</a></li>
+            </ul>
+        </div>
+
+        <div th:if="${currentUser != null and #strings.equalsIgnoreCase(currentUser.role, 'mahasiswa')}">
+            <p class="section-title">Menu Mahasiswa</p>
+            <ul class="menu-grid">
+                <li><a href="/reservations/cari"><span class="icon">🔍</span> Cari Meja &amp; Reservasi</a></li>
+                <li><a href="/feedback/page"><span class="icon">⭐</span> Kirim Feedback</a></li>
+                <li><a href="/reports/page"><span class="icon">📋</span> Laporkan Kerusakan</a></li>
+            </ul>
+        </div>
+
+        <div th:if="${currentUser != null and #strings.equalsIgnoreCase(currentUser.role, 'petugas')}">
+            <p class="section-title">Menu Petugas</p>
+            <ul class="menu-grid">
+                <li><a href="/checkin/page"><span class="icon">✅</span> Validasi Check-in / out</a></li>
+            </ul>
+        </div>
+    </div>
 </body>
 </html>

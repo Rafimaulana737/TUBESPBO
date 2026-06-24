@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Cari Meja')}"></head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div class="container">
+        <a href="/" class="back-link">← Kembali ke Dashboard</a>
+        <div class="page-header"><h1>Cari Meja &amp; Reservasi</h1><p>Temukan meja kosong dan buat booking</p></div>
+        <div th:replace="~{fragments/layout :: alerts}"></div>
+
+        <div class="card">
+            <h2 class="card-title">Cari Meja Kosong</h2>
+            <form method="get" action="/reservations/cari" class="form-grid" style="align-items:end;">
+                <div class="form-group"><label>Tanggal</label><input type="date" name="tanggal" th:value="${tanggal}" required></div>
+                <div class="form-group"><button type="submit" class="btn btn-primary">Cari</button></div>
+            </form>
+        </div>
+
+        <p class="section-title">Meja Tersedia — <span th:text="${tanggal}"></span></p>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>No. Meja</th><th>Ruangan</th><th>Status</th><th>Aksi</th></tr></thead>
+                <tbody>
+                    <tr th:each="meja : ${availableMeja}">
+                        <td th:text="${meja.nomorMeja}"></td>
+                        <td th:text="${meja.room != null} ? ${meja.room.namaRuangan} : '-'"></td>
+                        <td><span class="badge badge-tersedia" th:text="${meja.status}"></span></td>
+                        <td>
+                            <form method="post" th:action="@{/reservations/cari/book}" style="display:inline;">
+                                <input type="hidden" name="tanggal" th:value="${tanggal}">
+                                <input type="hidden" name="mejaId" th:value="${meja.id}">
+                                <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Booking meja ini?')">Booking</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(availableMeja)}" class="empty-row"><td colspan="4">Tidak ada meja kosong.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p class="section-title" style="margin-top:32px;">Reservasi Saya</p>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Kode Booking</th><th>Tanggal</th><th>Meja</th><th>Ruangan</th><th>Status</th></tr></thead>
+                <tbody>
+                    <tr th:each="res : ${myReservations}">
+                        <td><strong th:text="${res.bookingKode}"></strong></td>
+                        <td th:text="${res.tanggal}"></td>
+                        <td th:text="${res.meja != null} ? ${res.meja.nomorMeja} : '-'"></td>
+                        <td th:text="${res.room != null} ? ${res.room.namaRuangan} : '-'"></td>
+                        <td><span class="badge badge-status" th:text="${res.status}"></span></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(myReservations)}" class="empty-row"><td colspan="5">Belum ada reservasi.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
