@@ -12,7 +12,7 @@ import Reservasi._Co_Working.demo.model.Reservation;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    Optional<Reservation> findByBookingKode(String bookingKode);
+    Optional<Reservation> findFirstByBookingKodeOrderByIdDesc(String bookingKode);
 
     List<Reservation> findByUserId(Long userId);
 

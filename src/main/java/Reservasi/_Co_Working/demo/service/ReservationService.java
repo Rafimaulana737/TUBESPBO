@@ -38,7 +38,10 @@ public class ReservationService {
     }
 
     public Optional<Reservation> getReservationByBookingKode(String bookingKode) {
-        return reservationRepository.findByBookingKode(bookingKode);
+        if (bookingKode == null || bookingKode.isBlank()) {
+            return Optional.empty();
+        }
+        return reservationRepository.findFirstByBookingKodeOrderByIdDesc(bookingKode.trim());
     }
 
     public List<Meja> findAvailableMeja(LocalDate tanggal) {
@@ -100,7 +103,7 @@ public class ReservationService {
     }
 
     public Reservation checkIn(String bookingKode) {
-        Reservation reservation = reservationRepository.findByBookingKode(bookingKode)
+        Reservation reservation = getReservationByBookingKode(bookingKode)
                 .orElseThrow(() -> new RuntimeException("Booking tidak ditemukan"));
 
         if ("CHECK_IN".equalsIgnoreCase(reservation.getStatus())
@@ -115,7 +118,7 @@ public class ReservationService {
     }
 
     public Reservation checkOut(String bookingKode) {
-        Reservation reservation = reservationRepository.findByBookingKode(bookingKode)
+        Reservation reservation = getReservationByBookingKode(bookingKode)
                 .orElseThrow(() -> new RuntimeException("Booking tidak ditemukan"));
 
         if (!"CHECK_IN".equalsIgnoreCase(reservation.getStatus())) {
